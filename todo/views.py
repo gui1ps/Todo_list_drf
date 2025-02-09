@@ -17,3 +17,21 @@ def create_task(request):
         task_serializer.save()
         return Response(task_serializer.data,status=status.HTTP_201_CREATED)
     return Response(task_serializer.errors,status=status.HTTP_400_BAD_REQUEST)    
+
+@api_view(['GET'])
+def get_task(request,pk):
+    try:
+        task=Todo.objects.get(pk=pk)
+    except Todo.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    tasks_serializer=TodoSerializer(task)
+    return Response(tasks_serializer.data,status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+def delete_task(request,pk):
+    try:
+        task=Todo.objects.get(pk=pk)
+    except Todo.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    task.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
