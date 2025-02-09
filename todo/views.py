@@ -4,11 +4,11 @@ from rest_framework import status
 from todo.models import Todo
 from todo.serializers import TodoSerializer
 
-def verify_instance(pk):
+def get_instance(pk):
     try:
         return Todo.objects.get(pk=pk)
     except Todo.DoesNotExist:
-        return None
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def get_tasks(request):
@@ -26,25 +26,19 @@ def create_task(request):
 
 @api_view(['GET'])
 def get_task(request,pk):
-    if not verify_instance(pk):
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    task=Todo.objects.get(pk=pk)
+    task=get_instance(pk)
     tasks_serializer=TodoSerializer(task)
     return Response(tasks_serializer.data,status=status.HTTP_200_OK)
 
 @api_view(['DELETE'])
 def delete_task(request,pk):
-    if not verify_instance(pk):
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    task=Todo.objects.get(pk=pk)
+    task=get_instance(pk)
     task.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
 def update(request,pk):
-    if not verify_instance(pk):
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    task=Todo.objects.get(pk=pk)
+    task=get_instance(pk)
     task_serializer=TodoSerializer(task,data=request.data)
     if task_serializer.is_valid():
         task_serializer.save()
