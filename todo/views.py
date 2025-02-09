@@ -39,3 +39,14 @@ def delete_task(request,pk):
     task=Todo.objects.get(pk=pk)
     task.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['PUT'])
+def update(request,pk):
+    if not verify_instance(pk):
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    task=Todo.objects.get(pk=pk)
+    task_serializer=TodoSerializer(task,data=request.data)
+    if task_serializer.is_valid():
+        task_serializer.save()
+        return Response(task_serializer.data,status=status.HTTP_200_OK)
+    return Response(task_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
